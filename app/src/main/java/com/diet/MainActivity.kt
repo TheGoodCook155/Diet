@@ -82,11 +82,11 @@ fun App() {
 
 }
 
-@Preview
-@Composable
-fun AppTopBarPreview(){
-    AppTopBar(navController = rememberNavController(),false, title = "Add Product")
-}
+//@Preview
+//@Composable
+//fun AppTopBarPreview(){
+//    AppTopBar(navController = rememberNavController(),false, title = "Add Product")
+//}
 
 
 @Composable
@@ -114,6 +114,7 @@ fun AppTopBar(navController: NavController, isMainScreen: Boolean, title: String
                             .width(30.dp)
                             .padding(top = 2.dp)
                             .clickable {
+                                Log.d("GoBack", "AppTopBar: Clicked")
                                 navController.popBackStack()
                             })
                 }
@@ -129,7 +130,7 @@ fun AppTopBar(navController: NavController, isMainScreen: Boolean, title: String
             Row(modifier = Modifier.padding(15.dp)) {
                 IconButton(onClick = {
 
-                    navController.navigate(AddMealScreenDestination.route){
+                    navController.navigate(AddMealScreenDestination.route) {
                         popUpTo(HomeScreenDestination.route)
                     }
 
@@ -154,7 +155,7 @@ fun AppTopBar(navController: NavController, isMainScreen: Boolean, title: String
 
                 IconButton(onClick = {
 
-                    navController.navigate(AddProductScreenDestination.route){
+                    navController.navigate(AddProductScreenDestination.route) {
                         popUpTo(HomeScreenDestination.route)
                     }
 
