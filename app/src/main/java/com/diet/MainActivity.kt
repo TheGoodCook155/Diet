@@ -28,6 +28,8 @@ import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.diet.model.*
+import com.diet.model.references.MealsWithProductsCrossRef
+import com.diet.model.references.ProductsInMeals
 import com.diet.navigation.AddMealScreenDestination
 import com.diet.navigation.AddProductScreenDestination
 import com.diet.navigation.HomeScreenDestination
@@ -63,30 +65,10 @@ fun App() {
 
     val controller = rememberNavController()
 
-//    Scaffold(
-//        scaffoldState = rememberScaffoldState(),
-//        topBar = {
-//
-//            AppTopBar(controller)
-//
-//        }, modifier = Modifier.background(colorResource(id = R.color.primary))) {
-//
-//        Navigation(controller)
-//
-//    }
-
-
         Navigation(controller)
 
 
-
 }
-
-//@Preview
-//@Composable
-//fun AppTopBarPreview(){
-//    AppTopBar(navController = rememberNavController(),false, title = "Add Product")
-//}
 
 
 @Composable
@@ -182,124 +164,48 @@ fun AppTopBar(navController: NavController, isMainScreen: Boolean, title: String
         }
     }
 
-
-
-//       Log.d("currentDestination", "AppTopBar: ${currentDestination}")
-
-
-
 }
 
-
-
-//@Composable
-//fun AppTopBar(navController: NavHostController) {
-//
-//    val currentDestination = navController.currentDestination
-//
-//    Log.d("currentDestination", "AppTopBar: ${currentDestination}")
-//
-//    Row(modifier = Modifier
-//        .background(colorResource(id = R.color.primary))
-//        .padding(1.dp)
-//        .fillMaxWidth(),
-//        horizontalArrangement = Arrangement.End,
-//        verticalAlignment = Alignment.CenterVertically) {
-//
-//        IconButton(onClick = {
-//
-//
-//                 navController.navigate(AddProductScreenDestination.route)
-//
-//
-//
-//        }, modifier = Modifier
-//            .height(50.dp)
-//            .clip(RoundedCornerShape(5.dp))
-//            .background(colorResource(id = R.color.lightPrimary))
-//            .border(1.dp, Color.White, RoundedCornerShape(5.dp))
-//        ) {
-//            Row(modifier = Modifier.padding(2.dp)) {
-//
-//                Image(painter = painterResource(id = R.drawable.meal_icon), contentDescription = "Add meal",
-//                        modifier = Modifier
-//                            .height(25.dp)
-//                            .width(25.dp))
-//
-//                Icon(Icons.Default.AddCircle, contentDescription = "Add meal icon")
-//            }
-//        }
-//
-//        Spacer(Modifier.width(5.dp))
-//
-//        IconButton(onClick = {
-//
-//            navController.navigate(AddProductScreenDestination.route)
-//
-//
-//        }, Modifier
-//            .height(50.dp)
-//            .clip(RoundedCornerShape(5.dp))
-//            .background(colorResource(id = R.color.lightPrimary))
-//            .border(1.dp, Color.White, RoundedCornerShape(5.dp))
-//        ){
-//            Row(modifier = Modifier.padding(2.dp)) {
-//
-//                Image(painter = painterResource(id = R.drawable.product_icon), contentDescription = "Add product",
-//                    modifier = Modifier
-//                        .height(25.dp)
-//                        .width(25.dp))
-//
-//                Icon(Icons.Default.AddCircle, contentDescription = "Add product icon")
-//            }
-//        }
-//
-//    }
-//
-//}
-
-//@Preview (showBackground = true)
-//@Composable
-//fun AppPreview(){
-//    App()
-//}
-
-//@Preview (showBackground = true)
-//@Composable
-//fun AppTopBarPreview(){
-//    AppTopBar(navController = rememberNavController(), true)
-//}
-
-
-
-//
-//@Preview
-//@Composable
-//fun prepPreview(){
-////    CreateDayMealCard(dayWithMeals = DayWithMeals(Day("Ponedelnik",123456), listOf(Meal("rakija","Ponedelnik"),
-////        Meal("Sarma","Ponedelnik"), Meal("Pizza","Ponedelnik"))))
-//
-////    MealCard(mealName = "Javnija")
-//
-////    ModalWindowMeal(mealName = "Javnija")
-//
-////    OpenAlertBox("test", {})
-//}
 
 @Composable
 fun insertDummyData(viewModel: DietViewModel){
 
 
     val products = listOf<Product>(
-        Product("Banani",20,"ovosna salata"),
-        Product("Kromid",40, "grav so kolbasi"),
-        Product("Zelka",50, "sarma"),
-        Product("Meso",120,"sarma"),
-        Product("Stek",200,"kinesko"),
-        Product("Kavijar",150,"ruska salata"),
-        Product("Testo",200,"pasta"),
-        Product("Pivo",200,"rakija")
-    )
+        Product("Banani",20),
+        Product("Kromid",40),
+        Product("Zelka",50),
+        Product("Meso",120),
+        Product("Stek",200),
+        Product("Kavijar",150),
+        Product("Testo",200),
+        Product("Pivo",200),
+        Product("Jagodi",200),
+        Product("Creshi",20),
+        Product("Slivi",200),
+        Product("Borovinki",200),
+        Product("Grav",200),
+
+
+
+
+        )
+
+    val mealsWithProductCrossRef = listOf<MealsWithProductsCrossRef>(
+
+        MealsWithProductsCrossRef("ovosna salata","Borovinki"),
+        MealsWithProductsCrossRef("ovosna salata","Jagodi"),
+        MealsWithProductsCrossRef("sarma","Zelka"),
+        MealsWithProductsCrossRef("rasol","Zelka"),
+        MealsWithProductsCrossRef("Uzinka","Stek"),
+        MealsWithProductsCrossRef("Kinesko","Stek"),
+        MealsWithProductsCrossRef("grav so kolbasi","Grav"),
+        MealsWithProductsCrossRef("posen grav","Grav"),
+        MealsWithProductsCrossRef("mesana salata","Borovinki"),
+
+
+        )
+
 
     val meal = listOf<Meal>(
         Meal("ovosna salata","Ponedelnik"),
@@ -309,6 +215,8 @@ fun insertDummyData(viewModel: DietViewModel){
         Meal("grav so kolbasi","Vtornik"),
         Meal("kafe","Vtornik"),
         Meal("Uzinka","Vtornik"),
+        Meal("Kinesko","Vtornik"),
+        Meal("mesana salata","Vtornik"),
 
         Meal("sarma","Sreda"),
         Meal("sladoled","Sreda"),
@@ -358,6 +266,10 @@ fun insertDummyData(viewModel: DietViewModel){
 
     days.forEach {
         viewModel.insertDay(it)
+    }
+
+    mealsWithProductCrossRef.forEach {
+       viewModel.insertMealsWithProductsCrossRef(it)
     }
 
 

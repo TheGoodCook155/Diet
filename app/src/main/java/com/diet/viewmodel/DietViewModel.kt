@@ -9,6 +9,8 @@ import androidx.lifecycle.viewModelScope
 import com.diet.model.*
 import com.diet.model.references.DayWithMeals
 import com.diet.model.references.MealWithProducts
+import com.diet.model.references.MealsWithProductsCrossRef
+import com.diet.model.references.ProductsInMeals
 import com.diet.repository.DietRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.migration.CustomInjection.inject
@@ -108,6 +110,19 @@ class DietViewModel @Inject constructor(private val repository: DietRepository )
 //        Log.d("DATA", "getMealsWithProducts: mealsWithProducts Size: ${_getMealsWithProducts.value.size}, mealsWithProducts: ${_getMealsWithProducts.value}")
     }
 
+    private var _getProductsWithMeals = MutableStateFlow<List<ProductsInMeals>>(emptyList())
+    val getProductsWithMeals = _getProductsWithMeals.asStateFlow()
+
+    fun getProductsWithMeals(product: String){
+
+        viewModelScope.launch(Dispatchers.IO){
+            repository.getProductsInMeals(product).collect{ productsInMeals ->
+                _getProductsWithMeals.value = productsInMeals
+            }
+        }
+//        Log.d("DATA", "getMealsWithProducts: mealsWithProducts Size: ${_getMealsWithProducts.value.size}, mealsWithProducts: ${_getMealsWithProducts.value}")
+    }
+
 
     private var _getDayWithMeals = MutableStateFlow<List<DayWithMeals>>(emptyList())
     val getDayWithMeals = _getDayWithMeals.asStateFlow()
@@ -177,6 +192,25 @@ class DietViewModel @Inject constructor(private val repository: DietRepository )
     fun deleteDay(day: Day){
         viewModelScope.launch(Dispatchers.IO){
             repository.deleteDay(day)
+        }
+    }
+
+    //cross ref
+    fun insertMealsWithProductsCrossRef(crossRef: MealsWithProductsCrossRef){
+        viewModelScope.launch(Dispatchers.IO){
+            repository.insertProductWithMeals(crossRef)
+        }
+    }
+
+    fun updateMealsWithProductsCrossRef(crossRef: MealsWithProductsCrossRef){
+        viewModelScope.launch(Dispatchers.IO){
+            repository.updateProductWithMeals(crossRef)
+        }
+    }
+
+    fun deleteMealsWithProductsCrossRef(crossRef: MealsWithProductsCrossRef){
+        viewModelScope.launch(Dispatchers.IO){
+            repository.deleteProductWithMeals(crossRef)
         }
     }
 

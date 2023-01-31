@@ -7,12 +7,11 @@ import org.jetbrains.annotations.NotNull
 @Entity(tableName = "product")
 class Product (
     @PrimaryKey(autoGenerate = false)
-    val productName : String,
-    val individualCalories: Int,
-    val mealName: String
+    var productName : String,
+    var individualCalories: Int,
+//    var mealName: String
 
     ) {
-    override fun toString(): String {
-        return "Product(productName='$productName', individualCalories=$individualCalories, mealName='$mealName')"
-    }
+
+
 }

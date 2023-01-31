@@ -6,13 +6,13 @@ import androidx.room.Relation
 import com.diet.model.Meal
 import com.diet.model.Product
 
-data class MealWithProducts (
+data class ProductsInMeals(
     @Embedded
-    val meal: Meal,
+    val product: Product,
     @Relation(
-        parentColumn = "mealName",
-        entityColumn = "productName",
+        parentColumn = "productName",
+        entityColumn = "mealName",
         associateBy = Junction(MealsWithProductsCrossRef::class)
     )
-    val products: List<Product>
-        )
+    val meals: List<Meal>
+)

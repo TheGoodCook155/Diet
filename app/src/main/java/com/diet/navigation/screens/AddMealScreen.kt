@@ -1,7 +1,9 @@
 package com.diet.navigation.screens
 
+import android.os.Build
 import android.util.Log
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.*
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.draggable
@@ -15,7 +17,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.snapshots.MutableSnapshot
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
@@ -34,9 +35,14 @@ import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.diet.AppTopBar
+import com.diet.model.Meal
+import com.diet.model.Product
+import com.diet.model.references.MealsWithProductsCrossRef
 import com.diet.viewmodel.DietViewModel
+import java.time.LocalDate
 import kotlin.math.roundToInt
 
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun AddMealScreen(viewModel: DietViewModel, mainScreen: Boolean, navController: NavController) {
@@ -61,7 +67,7 @@ fun AddMealScreen(viewModel: DietViewModel, mainScreen: Boolean, navController: 
     Log.d("screenWidth", "AddMealScreen: ${screenWidth}")
 
     val receivedItems = remember {
-        mutableStateListOf<String>()
+        mutableStateListOf<Product>()
     }
 
 
@@ -94,7 +100,7 @@ fun AddMealScreen(viewModel: DietViewModel, mainScreen: Boolean, navController: 
                     }
                 ), modifier = Modifier.padding(20.dp),
                 label = {
-                    Text(text = "Product name")
+                    Text(text = "Meal name")
                 })
 
          PickedProducts(receivedItems){ deleted->
@@ -136,7 +142,7 @@ fun AddMealScreen(viewModel: DietViewModel, mainScreen: Boolean, navController: 
                     
                     products.forEach { product ->
                         
-                        ProductCard(productName = product.productName){ transferredItem ->
+                        ProductCard(product = product){ transferredItem ->
 
                             Log.d("transferredItems", "AddMealScreen: ${transferredItem}")
                             if(!receivedItems.contains(transferredItem)) {
@@ -155,10 +161,28 @@ fun AddMealScreen(viewModel: DietViewModel, mainScreen: Boolean, navController: 
         //ROW
         }
 
-
         Button(onClick = {
 
+
+           val saveMeal =  Meal(mealName.value,LocalDate.now().toString())
+
+            receivedItems.forEach{ product ->
+
+                val mealsWithProductsCrossRef = MealsWithProductsCrossRef(saveMeal.mealName,product.productName)
+
+                viewModel.insertMealsWithProductsCrossRef(mealsWithProductsCrossRef)
+
+            }
+
+            viewModel.insertMeal(saveMeal)
+
             Toast.makeText(context,"Saved",Toast.LENGTH_LONG).show()
+
+            //clear received items
+            //clear input
+
+            mealName.value = ""
+            receivedItems.removeRange(0,receivedItems.size)
 
         }, modifier = Modifier.padding(2.dp)) {
 
@@ -173,12 +197,12 @@ fun AddMealScreen(viewModel: DietViewModel, mainScreen: Boolean, navController: 
 }
 
 @Composable
-fun ProductCard(productName: String, transferredItems: (String) -> Unit){
+fun ProductCard(product: Product, transferredItems: (Product) -> Unit){
 
 
 
     val productName = rememberSaveable {
-        mutableStateOf(productName)
+        mutableStateOf(product.productName)
     }
 
     val offsetX = rememberSaveable {
@@ -220,7 +244,7 @@ fun ProductCard(productName: String, transferredItems: (String) -> Unit){
                     offsetX.value = 0F
                 } else {
 //                    transferredItems.add(productName.value)
-                    transferredItems(productName.value)
+                    transferredItems(product)
                     offsetX.value = 0F
 //                    Log.d(
 //                        "transferredItems",
@@ -245,8 +269,8 @@ fun ProductCard(productName: String, transferredItems: (String) -> Unit){
 
 @Composable
 fun PickedProducts(
-    receivedItems: SnapshotStateList<String>,
-    deleted: (String) -> Unit
+    receivedItems: SnapshotStateList<Product>,
+    deleted: (Product) -> Unit
 ) {
 
 
@@ -255,7 +279,7 @@ fun PickedProducts(
         .padding(3.dp)
         .horizontalScroll(rememberScrollState())) {
 
-        receivedItems.forEach { item ->
+        receivedItems.forEach { product ->
 
 
             Card(modifier = Modifier.padding(2.dp),
@@ -264,12 +288,12 @@ fun PickedProducts(
 
                 Row(modifier = Modifier.padding(5.dp)) {
 
-                    Text(text = item)
+                    Text(text = product.productName)
 
                     Icon(imageVector = Icons.Default.Delete, contentDescription = "delete icon",
                         modifier = Modifier.clickable {
 
-                            deleted(item)
+                            deleted(product)
 
                         })
 

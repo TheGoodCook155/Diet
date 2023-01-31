@@ -110,9 +110,12 @@ fun AddProductScreen(
 
                 Toast.makeText(context,"Saved: ProductName: ${productName.value}, productCalories: ${individualCalories.value}",Toast.LENGTH_LONG).show()
 
-                val product = Product(productName.value,individualCalories.value.toInt(),"")
+                val product = Product(productName.value,individualCalories.value.toInt())
 
                 viewModel.insertProduct(product)
+
+                productName.value = ""
+                individualCalories.value = ""
 
             }, modifier = Modifier.padding(10.dp)) {
 

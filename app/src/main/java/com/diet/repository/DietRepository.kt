@@ -5,6 +5,8 @@ import com.diet.db.DbDao
 import com.diet.model.*
 import com.diet.model.references.DayWithMeals
 import com.diet.model.references.MealWithProducts
+import com.diet.model.references.MealsWithProductsCrossRef
+import com.diet.model.references.ProductsInMeals
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.toCollection
@@ -48,6 +50,15 @@ class DietRepository  @Inject constructor(private val dbDao : DbDao){
         return data
     }
 
+    fun getProductsInMeals(productName: String): Flow<List<ProductsInMeals>> {
+
+        val data = dbDao.getProductsWithMeal(productName)
+        Log.d(TAG, "getMealsWithProducts: DATA: ${data}")
+
+
+        return data
+    }
+
      fun getDayWithMeals(day: String, date: String) : Flow<List<DayWithMeals>>{
 
         val data = dbDao.getDayWithMeals(day,date)
@@ -71,6 +82,11 @@ class DietRepository  @Inject constructor(private val dbDao : DbDao){
     suspend fun insertProduct(product: Product) = dbDao.insertProduct(product)
     suspend fun updateProduct(product: Product) = dbDao.updateProduct(product)
     suspend fun deleteProduct(product: Product) = dbDao.deleteProduct(product)
+
+    //cross ref
+    suspend fun insertProductWithMeals(crossRef: MealsWithProductsCrossRef) = dbDao.insertMealsWithProductsCrossRef(crossRef)
+    suspend fun updateProductWithMeals(crossRef: MealsWithProductsCrossRef) = dbDao.updateMealsWithProductsCrossRef(crossRef)
+    suspend fun deleteProductWithMeals(crossRef: MealsWithProductsCrossRef) = dbDao.deleteMealsWithProductsCrossRef(crossRef)
 
     //meal
     suspend fun insertMeal(meal: Meal) = dbDao.insertMeal(meal)

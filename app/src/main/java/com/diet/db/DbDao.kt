@@ -4,6 +4,8 @@ import androidx.room.*
 import com.diet.model.*
 import com.diet.model.references.DayWithMeals
 import com.diet.model.references.MealWithProducts
+import com.diet.model.references.MealsWithProductsCrossRef
+import com.diet.model.references.ProductsInMeals
 import kotlinx.coroutines.flow.Flow
 
 @Dao
@@ -24,6 +26,10 @@ interface DbDao {
    @Query("SELECT * FROM meal WHERE mealName= :mealName")
     fun getMealsWithProducts(mealName: String):  Flow<List<MealWithProducts>>
 
+    @Transaction
+    @Query("SELECT * FROM product WHERE productName= :productName")
+    fun getProductsWithMeal(productName: String):  Flow<List<ProductsInMeals>>
+
    @Transaction
    @Query("SELECT * FROM day WHERE dayName= :day")
     fun getDayWithMeals(day: String):  Flow<List<DayWithMeals>>
@@ -36,6 +42,8 @@ interface DbDao {
     @Query("SELECT * FROM day")
     fun getDayWithMealsNoParam():  Flow<List<DayWithMeals>>
 
+
+
  //product
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertProduct(product: Product)
@@ -46,6 +54,18 @@ interface DbDao {
     @Delete()
     suspend fun deleteProduct(product: Product)
 
+
+    //cross ref
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertMealsWithProductsCrossRef(crossRef: MealsWithProductsCrossRef)
+
+    //cross ref
+    @Update(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun updateMealsWithProductsCrossRef(crossRef: MealsWithProductsCrossRef)
+
+    //cross ref
+    @Delete()
+    suspend fun deleteMealsWithProductsCrossRef(crossRef: MealsWithProductsCrossRef)
 
     //meal
     @Insert(onConflict = OnConflictStrategy.REPLACE)

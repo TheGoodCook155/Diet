@@ -7,6 +7,5 @@ import androidx.room.PrimaryKey
 data class Meal (
     @PrimaryKey(autoGenerate = false)
     val mealName: String,
-
     val dayName: String
     )

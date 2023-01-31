@@ -7,8 +7,9 @@ import com.diet.model.Product
 import com.diet.model.Day
 import com.diet.model.references.DayWithMeals
 import com.diet.model.references.MealWithProducts
+import com.diet.model.references.MealsWithProductsCrossRef
 
-@Database(entities = [Product::class,Meal::class,Day::class], version = 1, exportSchema = false)
+@Database(entities = [Product::class,Meal::class,Day::class, MealsWithProductsCrossRef::class], version = 1, exportSchema = false)
 abstract class DietDatabase : RoomDatabase(){
 
     abstract fun dietDao() : DbDao
