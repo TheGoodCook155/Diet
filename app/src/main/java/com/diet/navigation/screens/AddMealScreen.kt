@@ -17,7 +17,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -38,6 +37,8 @@ import com.diet.AppTopBar
 import com.diet.model.Meal
 import com.diet.model.Product
 import com.diet.model.references.MealsWithProductsCrossRef
+import com.diet.model.saveable.ProductsSaveable
+import com.diet.model.saveable.ProductsSaveable.Companion.HolderSaver
 import com.diet.viewmodel.DietViewModel
 import java.time.LocalDate
 import kotlin.math.roundToInt
@@ -54,6 +55,7 @@ fun AddMealScreen(viewModel: DietViewModel, mainScreen: Boolean, navController: 
         mutableStateOf("")
     }
 
+
     val products = viewModel.getAllProducts.collectAsState().value
 
     val localFocusManager = LocalFocusManager.current
@@ -66,12 +68,13 @@ fun AddMealScreen(viewModel: DietViewModel, mainScreen: Boolean, navController: 
 
     Log.d("screenWidth", "AddMealScreen: ${screenWidth}")
 
-    val receivedItems = remember {
-        mutableStateListOf<Product>()
+
+    var receivedItems = rememberSaveable(saver = HolderSaver){
+        mutableStateOf(ProductsSaveable(mutableListOf<Product>()))
     }
 
 
-    Log.d("transferredItems", "AddMealScreen: ${receivedItems.size} ")
+    Log.d("receivedItems", "AddMealScreen: Instance: ${receivedItems} ")
 
     Log.d("rowHeight", "AddMealScreen: productsSize: ${products.size}")
 
@@ -103,12 +106,32 @@ fun AddMealScreen(viewModel: DietViewModel, mainScreen: Boolean, navController: 
                     Text(text = "Meal name")
                 })
 
-         PickedProducts(receivedItems){ deleted->
-            receivedItems.remove(deleted)
+        Log.d("receivedItems", "AddMealScreen: Before passing to PickedProducts(), size: ${receivedItems.value.receivedItems.size}")
+
+
+        PickedProducts(receivedItems.value.receivedItems!!){ deleted->
+
+            Log.d("deleted", "AddMealScreen: item: ${deleted}")
+            Log.d("deleted", "AddMealScreen: sizeBeforeDeletion: ${receivedItems.value.receivedItems.size}")
+
+            receivedItems.value.receivedItems!!.remove(deleted)
+            Log.d("deleted", "AddMealScreen: sizeAfterDeletion: ${receivedItems.value.receivedItems.size}")
+
+            var currentItemsList = receivedItems.value.receivedItems
+            Log.d("deleted", "AddMealScreen: currentItemsList: ${currentItemsList} size: ${currentItemsList.size}")
+
+            receivedItems.value = ProductsSaveable(mutableListOf())
+            receivedItems.value.receivedItems = currentItemsList
+            val tempMealName =  mealName.value
+            if (receivedItems.value.receivedItems.size < 1) {
+                mealName.value = tempMealName + "a"
+                mealName.value = tempMealName
+            }
+
             Log.d("transferredItems", "AddMealScreen: deleted: ${deleted} ")
         }
 
-        Log.d("transferredItems", "AddMealScreen: items: ${receivedItems.size} ")
+        Log.d("transferredItems", "AddMealScreen: items: ${receivedItems.value.receivedItems!!.size} ")
 
 
             Row(modifier = Modifier
@@ -145,10 +168,16 @@ fun AddMealScreen(viewModel: DietViewModel, mainScreen: Boolean, navController: 
                         ProductCard(product = product){ transferredItem ->
 
                             Log.d("transferredItems", "AddMealScreen: ${transferredItem}")
-                            if(!receivedItems.contains(transferredItem)) {
-                                receivedItems.add(transferredItem)
+
+                            if(!receivedItems.value.receivedItems!!.contains(transferredItem)) {
+                                receivedItems.value.receivedItems!!.add(transferredItem)
+                                val currentReceivedItems = receivedItems.value.receivedItems
+                                receivedItems.value = ProductsSaveable(mutableListOf())
+                                receivedItems.value.receivedItems = currentReceivedItems
                             }
-                            Log.d("transferredItems", "AddMealScreen: receivedItems: size: ${receivedItems.size}, items: ${receivedItems.toString()}")
+
+
+                            Log.d("transferredItems", "AddMealScreen: receivedItems: size: ${receivedItems.value.receivedItems!!.size}, items: ${receivedItems.toString()}")
 
 
                         }
@@ -163,28 +192,39 @@ fun AddMealScreen(viewModel: DietViewModel, mainScreen: Boolean, navController: 
 
         Button(onClick = {
 
+            if (!mealName.value.isNullOrEmpty() && receivedItems.value.receivedItems.size > 0){
 
-           val saveMeal =  Meal(mealName.value,LocalDate.now().toString())
+                val saveMeal =  Meal(mealName.value,LocalDate.now().toString())
 
-            receivedItems.forEach{ product ->
+                receivedItems.value.receivedItems!!.forEach{ product ->
 
-                val mealsWithProductsCrossRef = MealsWithProductsCrossRef(saveMeal.mealName,product.productName)
+                    val mealsWithProductsCrossRef = MealsWithProductsCrossRef(saveMeal.mealName,product.productName)
 
-                viewModel.insertMealsWithProductsCrossRef(mealsWithProductsCrossRef)
+                    viewModel.insertMealsWithProductsCrossRef(mealsWithProductsCrossRef)
 
+                }
+
+                viewModel.insertMeal(saveMeal)
+
+                Toast.makeText(context,"Saved",Toast.LENGTH_LONG).show()
+
+                //clear received items
+                //clear input
+
+                mealName.value = ""
+//            receivedItems.removeRange(0,receivedItems.size)
+                receivedItems.value.receivedItems?.removeAll(receivedItems?.value?.receivedItems!!)
+                receivedItems.value = ProductsSaveable(mutableListOf()) //EMPTY the list once the Product is saved
+
+            }else{
+                //Toast save fail
+                Toast.makeText(context,"Meal name can't be empty/Can't create meal without Products",Toast.LENGTH_LONG)
             }
 
-            viewModel.insertMeal(saveMeal)
 
-            Toast.makeText(context,"Saved",Toast.LENGTH_LONG).show()
 
-            //clear received items
-            //clear input
-
-            mealName.value = ""
-            receivedItems.removeRange(0,receivedItems.size)
-
-        }, modifier = Modifier.padding(2.dp)) {
+        }, modifier = Modifier.padding(2.dp),
+            enabled = if (!mealName.value.isNullOrEmpty() && receivedItems.value.receivedItems.size > 0) true else false) {
 
             Text(text = "Save")
 
@@ -269,46 +309,47 @@ fun ProductCard(product: Product, transferredItems: (Product) -> Unit){
 
 @Composable
 fun PickedProducts(
-    receivedItems: SnapshotStateList<Product>,
+    receivedItems: MutableList<Product>,
     deleted: (Product) -> Unit
 ) {
 
-
+    Log.d("receivedItems", "PickedProducts: size: ${receivedItems.size}")
 
     Row(modifier = Modifier
         .padding(3.dp)
         .horizontalScroll(rememberScrollState())) {
 
-        receivedItems.forEach { product ->
+        if (receivedItems.size > 0) {
+            receivedItems.forEach { product ->
 
 
-            Card(modifier = Modifier.padding(2.dp),
-                shape = RoundedCornerShape(5.dp),
-                elevation = 5.dp) {
+                Card(
+                    modifier = Modifier.padding(2.dp),
+                    shape = RoundedCornerShape(5.dp),
+                    elevation = 5.dp
+                ) {
 
-                Row(modifier = Modifier.padding(5.dp)) {
+                    Row(modifier = Modifier.padding(5.dp)) {
 
-                    Text(text = product.productName)
+                        Text(text = product.productName)
 
-                    Icon(imageVector = Icons.Default.Delete, contentDescription = "delete icon",
-                        modifier = Modifier.clickable {
+                        Icon(imageVector = Icons.Default.Delete, contentDescription = "delete icon",
+                            modifier = Modifier.clickable {
 
-                            deleted(product)
+                                deleted(product)
 
-                        })
+                            })
+
+                    }
 
                 }
 
+
             }
-
-
+        }else{
+            Box {}
         }
-
     }
-
-
-
-
 }
 
 

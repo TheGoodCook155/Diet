@@ -1,5 +1,7 @@
 package com.diet.navigation
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
@@ -40,6 +42,7 @@ object AddProductScreenDestination: Destinations{
 
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun Navigation(controller: NavHostController) {
 

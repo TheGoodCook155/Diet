@@ -5,7 +5,7 @@ import androidx.room.PrimaryKey
 import org.jetbrains.annotations.NotNull
 
 @Entity(tableName = "product")
-class Product (
+data class Product (
     @PrimaryKey(autoGenerate = false)
     var productName : String,
     var individualCalories: Int,

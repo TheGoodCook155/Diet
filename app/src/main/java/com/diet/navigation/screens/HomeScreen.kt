@@ -202,7 +202,7 @@ fun OpenAlertBox(mealSaveableName: String, mealsWithProductsList: List<MealWithP
 
     Log.d("AlertBox", "Entered")
 
-    val alertBoxState = remember{
+    val alertBoxState = rememberSaveable{
         mutableStateOf(false)
     }
 
